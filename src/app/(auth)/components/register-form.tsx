@@ -128,7 +128,7 @@ export function RegisterForm({
                                 </div>
                                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                                     {
-                                        form.formState.isSubmitting ? <Loader2 /> : "Register"
+                                        form.formState.isSubmitting ? <Loader2 className="m-2 h-4 w-4 animate-spin" /> : "Register"
                                     }
                                 </Button>
                                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
