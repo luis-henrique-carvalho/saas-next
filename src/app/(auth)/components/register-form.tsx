@@ -1,9 +1,12 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner"
 
 import { signUpFormData, signUpSchema } from "@/app/(auth)/schemas/auth"
 import { Button } from "@/components/ui/button"
@@ -26,6 +29,7 @@ export function RegisterForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const router = useRouter()
 
     const form = useForm<RegisterFormData>({
         resolver: zodResolver(signUpSchema),
@@ -37,18 +41,13 @@ export function RegisterForm({
             email: formData.email,
             password: formData.password,
             name: formData.name,
-            callbackURL: "/dashboard",
         }, {
-            onRequest: () => {
-                //show loading
-            },
-            onSuccess: (ctx) => {
-                // redirect to the dashboard
-                window.location.href = ctx.data.callbackURL || "/dashboard";
+
+            onSuccess: () => {
+                router.push("/dashboard");
             },
             onError: (ctx) => {
-                // display the error message
-                alert(ctx.error.message);
+                toast.error(ctx.error.message || "Registration failed!");
             },
         })
     }
