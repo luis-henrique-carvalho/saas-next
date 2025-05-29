@@ -44,6 +44,8 @@ model Clinic {
 
   users      User[]
   ClinicUser ClinicUser[]
+
+  @@map("clinic")
 }
 
 model ClinicUser {
@@ -53,7 +55,8 @@ model ClinicUser {
   clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([clinicId, userId])
+  @@id([clinicId, userId], map: "clinic_user_pkey")
+  @@map("clinic_user")
 }
 
 model Doctor {
@@ -73,6 +76,8 @@ model Doctor {
 
   clinic      Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   Appointment Appointment[]
+
+  @@map("doctor")
 }
 
 model Patient {
@@ -86,6 +91,8 @@ model Patient {
   updatedAt DateTime @updatedAt
 
   Appointment Appointment[]
+
+  @@map("patient")
 }
 
 enum pacienSexEnum {
@@ -107,6 +114,8 @@ model Appointment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("appointment")
 }
 
 model Session {
