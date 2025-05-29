@@ -1,9 +1,11 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
+import { signUpFormData, signUpSchema } from "@/app/(auth)/schemas/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -15,8 +17,8 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils"
-import { signUpFormData, signUpSchema } from "@/schemas/auth"
 
 type RegisterFormData = signUpFormData & { name: string }
 
@@ -30,8 +32,25 @@ export function RegisterForm({
         defaultValues: { name: "", email: "", password: "", confirmPassword: "" }
     });
 
-    const onSubmit = (data: RegisterFormData) => {
-        console.log("Register form submitted with data:", data);
+    const onSubmit = async (formData: RegisterFormData) => {
+        await authClient.signUp.email({
+            email: formData.email,
+            password: formData.password,
+            name: formData.name,
+            callbackURL: "/dashboard",
+        }, {
+            onRequest: () => {
+                //show loading
+            },
+            onSuccess: (ctx) => {
+                // redirect to the dashboard
+                window.location.href = ctx.data.callbackURL || "/dashboard";
+            },
+            onError: (ctx) => {
+                // display the error message
+                alert(ctx.error.message);
+            },
+        })
     }
 
     return (
@@ -107,8 +126,10 @@ export function RegisterForm({
                                         )}
                                     />
                                 </div>
-                                <Button type="submit" className="w-full">
-                                    Register
+                                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                                    {
+                                        form.formState.isSubmitting ? <Loader2 /> : "Register"
+                                    }
                                 </Button>
                                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                                     <span className="relative z-10 bg-background px-2 text-muted-foreground">

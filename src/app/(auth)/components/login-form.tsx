@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
+import { signInFormData, signInSchema } from "@/app/(auth)/schemas/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -16,7 +17,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
-import { signInFormData, signInSchema } from "@/schemas/auth"
 
 export function LoginForm({
   className,
