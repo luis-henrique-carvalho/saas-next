@@ -64,7 +64,7 @@ export function LoginForm({
                     Login to your Acme Inc account
                   </p>
                 </div>
-                <div className="grid gap-2">
+                <div className="grid ">
                   <FormField
                     control={form.control}
                     name="email"
