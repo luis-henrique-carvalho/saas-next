@@ -6,11 +6,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
-import { signInFormData, signInSchema } from "@/app/(auth)/schemas/auth"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { signInFormData, signInSchema } from "@/app/(auth)/schemas/auth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -18,53 +18,54 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter()
+  const router = useRouter();
 
   const form = useForm<signInFormData>({
     resolver: zodResolver(signInSchema),
-    defaultValues: { email: "", password: "" }
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = async (data: signInFormData) => {
-    await authClient.signIn.email({
-      email: data.email,
-      password: data.password,
-    }, {
-      onSuccess: () => {
-        toast.success("Login successful!");
-        router.push("/dashboard");
+    await authClient.signIn.email(
+      {
+        email: data.email,
+        password: data.password,
       },
-      onError: (ctx) => {
-        toast.error(ctx.error.message || "Login failed!")
+      {
+        onSuccess: () => {
+          toast.success("Login successful!");
+          router.push("/dashboard");
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message || "Login failed!");
+        },
       },
-    }
-    )
-  }
+    );
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Form {...form}>
-
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Welcome back</h1>
-                  <p className="text-balance text-muted-foreground">
+                  <p className="text-muted-foreground text-balance">
                     Login to your Acme Inc account
                   </p>
                 </div>
-                <div className="grid ">
+                <div className="grid">
                   <FormField
                     control={form.control}
                     name="email"
@@ -87,20 +88,30 @@ export function LoginForm({
                       <FormItem>
                         <FormLabel>password</FormLabel>
                         <FormControl>
-                          <Input placeholder="password" type="password" {...field} />
+                          <Input
+                            placeholder="password"
+                            type="password"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {
-                    form.formState.isSubmitting ? <Loader2 className="m-2 h-4 w-4 animate-spin" /> : "Login"
-                  }
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? (
+                    <Loader2 className="m-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
-                <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                  <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+                  <span className="bg-background text-muted-foreground relative z-10 px-2">
                     Or continue with
                   </span>
                 </div>
@@ -135,14 +146,17 @@ export function LoginForm({
                 </div>
                 <div className="text-center text-sm">
                   Don&apos;t have an account?{" "}
-                  <Link href="/register" className="underline underline-offset-4">
+                  <Link
+                    href="/register"
+                    className="underline underline-offset-4"
+                  >
                     Sign up
                   </Link>
                 </div>
               </div>
             </form>
           </Form>
-          <div className="relative hidden bg-muted md:block">
+          <div className="bg-muted relative hidden md:block">
             <Image
               src="/placeholder.svg"
               alt="Image"
@@ -154,11 +168,11 @@ export function LoginForm({
           </div>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+      <div className="text-muted-foreground hover:[&_a]:text-primary text-center text-xs text-balance [&_a]:underline [&_a]:underline-offset-4">
         By clicking continue, you agree to our{" "}
-        <Link href="#">Terms of Service</Link>{" "}
-        and <Link href="#">Privacy Policy</Link>.
+        <Link href="#">Terms of Service</Link> and{" "}
+        <Link href="#">Privacy Policy</Link>.
       </div>
     </div>
-  )
+  );
 }
