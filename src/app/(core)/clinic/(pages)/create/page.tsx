@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const ClinicForm = () => {
+import ClinicForm from "../../components/clinic-form";
+
+const ClinicCreate = () => {
   return (
     <div>
       <Dialog open>
@@ -21,14 +21,10 @@ const ClinicForm = () => {
           </DialogHeader>
 
           <ClinicForm />
-
-          <DialogFooter>
-            <Button type="submit">Adicionar</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
 };
 
-export default ClinicForm;
+export default ClinicCreate;
