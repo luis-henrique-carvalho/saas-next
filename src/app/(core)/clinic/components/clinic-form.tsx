@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { createClinicAction } from "../actions";
+import { createClini } from "../actions";
 import { ClinicFormData, clinicSchema } from "../schemas";
 
 const ClinicForm = () => {
@@ -30,7 +30,7 @@ const ClinicForm = () => {
 
   const onSubmit = async (data: ClinicFormData) => {
     try {
-      await createClinicAction(data);
+      await createClini(data);
       toast.success("Clínica criada com sucesso!");
     } catch (error) {
       console.log(error);
