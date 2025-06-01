@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import React from "react";
 
 import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
 
 const Dashboard = async () => {
   const session = await auth.api.getSession({
@@ -15,16 +14,7 @@ const Dashboard = async () => {
     redirect("/login");
   }
 
-  const clincUsers = await prisma.clinicUser.findMany({
-    where: {
-      userId: session?.user.id,
-    },
-    include: {
-      clinic: true,
-    },
-  });
-
-  if (clincUsers.length === 0) {
+  if (!session.user.clinic) {
     redirect("/clinic/create");
   }
 
@@ -44,9 +34,7 @@ const Dashboard = async () => {
       )}
       <h3>Clinics:</h3>
       <ul>
-        {clincUsers.map((clinicUser) => (
-          <li key={clinicUser.clinic.id}>{clinicUser.clinic.name}</li>
-        ))}
+        <li key={session.user.clinic.id}>{session.user.clinic.name}</li>
       </ul>
     </div>
   );
