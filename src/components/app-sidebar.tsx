@@ -4,10 +4,19 @@ import {
   Stethoscope,
   UsersRound,
 } from "lucide-react";
+import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 
 import LogoutButton from "@/app/(auth)/components/logout-button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -20,17 +29,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { auth } from "@/lib/auth";
 
-import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-
-// Menu items.
 const items = [
   {
     title: "Dashboard",
@@ -54,7 +54,12 @@ const items = [
   },
 ];
 
-export function AppSidebar() {
+export async function AppSidebar() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
@@ -88,7 +93,20 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="default">Clinica</Button>
+                <SidebarMenuButton size="lg">
+                  <Avatar>
+                    <AvatarFallback>F</AvatarFallback>
+                  </Avatar>
+
+                  <div className="flex flex-col justify-center text-sm">
+                    <p className="font-semibold">
+                      {session?.user?.clinic?.name}
+                    </p>
+                    <p className="text-muted-foreground ">
+                      {session?.user.email}
+                    </p>
+                  </div>
+                </SidebarMenuButton>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent>
