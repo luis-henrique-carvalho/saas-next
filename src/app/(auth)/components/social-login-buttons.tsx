@@ -1,27 +1,15 @@
 "use client";
 
-import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
 export function SocialLoginButtons() {
   const handleGoogleLogin = async () => {
-    await authClient.signIn.social(
-      {
-        provider: "google",
-        callbackURL: "/dashboard",
-        errorCallbackURL: "/login",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Login successful!");
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message || "Login failed!");
-        },
-      },
-    );
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
+      errorCallbackURL: "/login",
+    });
   };
 
   return (

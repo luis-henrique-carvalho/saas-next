@@ -1,16 +1,18 @@
+// TODO: change to outher folder
 "use client";
-
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 
 const LogoutButton = () => {
   const router = useRouter();
 
   return (
-    <Button
+    <DropdownMenuItem
+      variant="destructive"
       onClick={() =>
         authClient.signOut({
           fetchOptions: {
@@ -25,8 +27,9 @@ const LogoutButton = () => {
         })
       }
     >
-      Sign Out
-    </Button>
+      <LogOut />
+      Sair
+    </DropdownMenuItem>
   );
 };
 

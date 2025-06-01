@@ -3,7 +3,6 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import React from "react";
 
-import LogoutButton from "@/app/(auth)/components/logout-button";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
@@ -49,7 +48,6 @@ const Dashboard = async () => {
           <li key={clinicUser.clinic.id}>{clinicUser.clinic.name}</li>
         ))}
       </ul>
-      {session && <LogoutButton />}
     </div>
   );
 };
