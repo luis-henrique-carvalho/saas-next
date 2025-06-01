@@ -2,9 +2,18 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
 
-import { PageActions, PageContainer, PageContent, PageDescription, PageHeader, PageHeaderContent, PageTitle } from "@/components/layout/page-container";
-import { Button } from "@/components/ui/button";
+import {
+  PageActions,
+  PageContainer,
+  PageContent,
+  PageDescription,
+  PageHeader,
+  PageHeaderContent,
+  PageTitle,
+} from "@/components/layout/page-container";
 import { auth } from "@/lib/auth";
+
+import AddDoctorButton from "./components/add-doctor-button";
 
 const DoctorsPage = async () => {
   const session = await auth.api.getSession({
@@ -14,7 +23,6 @@ const DoctorsPage = async () => {
   if (!session) {
     redirect("/login");
   }
-
 
   if (session.user.clinic === null) {
     redirect("/clinic/create");
@@ -28,15 +36,14 @@ const DoctorsPage = async () => {
           <PageDescription>Gerencie os médicos da sua clínica</PageDescription>
         </PageHeaderContent>
         <PageActions>
-          <Button>
-            Adicionar Médico
-          </Button>
+          <AddDoctorButton />
         </PageActions>
       </PageHeader>
       <PageContent>
         <p>This is where you can manage your doctors.</p>
       </PageContent>
-    </PageContainer>);
+    </PageContainer>
+  );
 };
 
 export default DoctorsPage;
