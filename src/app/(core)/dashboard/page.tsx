@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -33,6 +34,15 @@ const Dashboard = async () => {
       Dashboard
       <h2>{session?.user.name}</h2>
       <h2>{session?.user.email}</h2>
+      {session?.user.image && (
+        <Image
+          src={session.user.image}
+          alt="User Avatar"
+          width={100}
+          height={100}
+          className="rounded-full"
+        />
+      )}
       <h3>Clinics:</h3>
       <ul>
         {clincUsers.map((clinicUser) => (
