@@ -11,8 +11,7 @@ export const doctorSchema = z
       .or(z.literal("").transform(() => undefined)),
     specialty: z
       .string({ required_error: "É necessário informar a especialidade!" })
-      .min(3, "A especialidade deve ter pelo menos 3 caracteres")
-      .optional(),
+      .min(3, "A especialidade deve ter pelo menos 3 caracteres"),
     availableFromWeekday: z.coerce.string({
       required_error: "Informe o dia inicial de atendimento",
     }),

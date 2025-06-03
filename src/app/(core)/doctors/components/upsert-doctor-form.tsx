@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
@@ -38,31 +40,41 @@ import TimeSelectField from "./time-selector-field";
 
 interface UpsertDoctorFormProps {
   onSuccess?: () => void;
+  doctor?: DoctorFormData;
 }
 
-const UpsertDoctorForm = ({ onSuccess }: UpsertDoctorFormProps) => {
+const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
   const form = useForm<DoctorFormData>({
     resolver: zodResolver(doctorSchema),
     defaultValues: {
-      name: "",
-      appointPriceInCents: 0,
-      availableFromTime: "08:00:00",
-      availableToTime: "09:00:00",
-      availableFromWeekday: "1",
-      availableToWeekday: "5",
+      id: doctor?.id || "",
+      name: doctor?.name || "",
+      appointPriceInCents: doctor?.appointPriceInCents
+        ? doctor.appointPriceInCents / 100
+        : 0,
+      availableFromTime: doctor?.availableFromTime.toString() || "09:00:00",
+      availableToTime: doctor?.availableToTime.toString() || "18:00:00",
+      availableFromWeekday: doctor?.availableFromWeekday || "1",
+      availableToWeekday: doctor?.availableToWeekday || "6",
       avatar: "",
-      specialty: "",
+      specialty: doctor?.specialty || "",
     },
   });
 
   const upsertDoctorAction = useAction(upsertDoctor, {
     onSuccess: () => {
-      toast.success("Médico adicionado com sucesso!");
+      toast.success(
+        doctor
+          ? "Médico atualizado com sucesso!"
+          : "Médico adicionado com sucesso!",
+      );
       onSuccess?.();
     },
     onError: (error) => {
-      console.error("Error creating doctor:", error);
-      toast.error("Erro ao adicionar médico. Tente novamente.");
+      toast.error(
+        doctor ? "Erro ao atualizar médico." : "Erro ao adicionar médico.",
+      );
+      console.error(error);
     },
   });
 
@@ -73,8 +85,14 @@ const UpsertDoctorForm = ({ onSuccess }: UpsertDoctorFormProps) => {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Adicionar Médico</DialogTitle>
-        <DialogDescription>Adicione um novo médico</DialogDescription>
+        <DialogTitle>
+          {doctor ? "Editar Médico" : "Adicionar Médico"}
+        </DialogTitle>
+        <DialogDescription>
+          {doctor
+            ? "Edite os detalhes do médico."
+            : "Preencha os detalhes do novo médico."}
+        </DialogDescription>
       </DialogHeader>
 
       <Form {...form}>
@@ -245,15 +263,15 @@ const UpsertDoctorForm = ({ onSuccess }: UpsertDoctorFormProps) => {
           </div>
 
           <DialogFooter>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? (
-                <Loader2 className="m-2 h-4 w-4 animate-spin" />
+            <Button type="submit" disabled={upsertDoctorAction.isPending}>
+              {upsertDoctorAction.isPending ? (
+                <>
+                  <Loader2 className="m-2 h-4 w-4 animate-spin" /> Salvando...
+                </>
+              ) : doctor ? (
+                "Salvar"
               ) : (
-                "Criar Médico"
+                "Adicionar"
               )}
             </Button>
           </DialogFooter>

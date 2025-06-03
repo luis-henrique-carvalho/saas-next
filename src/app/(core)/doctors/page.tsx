@@ -12,8 +12,10 @@ import {
   PageTitle,
 } from "@/components/layout/page-container";
 import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 
 import AddDoctorButton from "./components/add-doctor-button";
+import DoctorCard from "./components/doctor-card";
 
 const DoctorsPage = async () => {
   const session = await auth.api.getSession({
@@ -28,6 +30,12 @@ const DoctorsPage = async () => {
     redirect("/clinic/create");
   }
 
+  const doctors = await prisma.doctor.findMany({
+    where: {
+      clinicId: session.user.clinic.id,
+    },
+  });
+
   return (
     <PageContainer>
       <PageHeader>
@@ -40,7 +48,11 @@ const DoctorsPage = async () => {
         </PageActions>
       </PageHeader>
       <PageContent>
-        <p>This is where you can manage your doctors.</p>
+        <div className="grid grid-cols-3 gap-4">
+          {doctors.map((doctor) => (
+            <DoctorCard key={doctor.id} doctor={doctor} />
+          ))}
+        </div>
       </PageContent>
     </PageContainer>
   );

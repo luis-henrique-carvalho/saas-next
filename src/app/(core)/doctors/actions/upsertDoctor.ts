@@ -2,6 +2,7 @@
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 import { auth } from "@/lib/auth";
@@ -41,7 +42,7 @@ export const upsertDoctor = actionClient
       throw new Error("Clinic ID is required");
     }
 
-    const result = await prisma.doctor.upsert({
+    await prisma.doctor.upsert({
       where: { id: parsedInput.id || "" },
       update: {
         ...parsedInput,
@@ -62,5 +63,7 @@ export const upsertDoctor = actionClient
       },
     });
 
-    return result;
+    console.log("Doctor upserted successfully");
+
+    revalidatePath("/doctors");
   });
