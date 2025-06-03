@@ -6,14 +6,13 @@ import {
   DollarSignIcon,
   TrashIcon,
 } from "lucide-react";
-// import { useAction } from "next-safe-action/hooks";
+import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
+import { toast } from "sonner";
 
-// import { toast } from "sonner";
-// import { deleteDoctor } from "@/actions/delete-doctor";
 import {
   AlertDialog,
-  // AlertDialogAction,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -36,6 +35,7 @@ import { Separator } from "@/components/ui/separator";
 import { Doctor } from "@/generated/prisma";
 import { formatCurrencyInCents } from "@/helpers/currency";
 
+import { deleteDoctor } from "../actions/deleteDoctor";
 import { getAvailability } from "../helpers/availability";
 import UpsertDoctorForm from "./upsert-doctor-form";
 
@@ -46,18 +46,18 @@ interface DoctorCardProps {
 const DoctorCard = ({ doctor }: DoctorCardProps) => {
   const [isUpsertDoctorDialogOpen, setIsUpsertDoctorDialogOpen] =
     useState(false);
-  // const deleteDoctorAction = useAction(deleteDoctor, {
-  //     onSuccess: () => {
-  //         toast.success("Médico deletado com sucesso.");
-  //     },
-  //     onError: () => {
-  //         toast.error("Erro ao deletar médico.");
-  //     },
-  // });
-  // const handleDeleteDoctorClick = () => {
-  //     if (!doctor) return;
-  //     deleteDoctorAction.execute({ id: doctor.id });
-  // };
+  const deleteDoctorAction = useAction(deleteDoctor, {
+    onSuccess: () => {
+      toast.success("Médico deletado com sucesso.");
+    },
+    onError: () => {
+      toast.error("Erro ao deletar médico.");
+    },
+  });
+  const handleDeleteDoctorClick = () => {
+    if (!doctor) return;
+    deleteDoctorAction.execute({ id: doctor.id });
+  };
 
   const doctorInitials = doctor.name
     .split(" ")
@@ -136,9 +136,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              {/* <AlertDialogAction onClick={handleDeleteDoctorClick}>
-                                Deletar
-                            </AlertDialogAction> */}
+              <AlertDialogAction onClick={handleDeleteDoctorClick}>
+                Deletar
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
