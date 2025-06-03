@@ -17,9 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { doctorFormData } from "../schemas";
+import { DoctorFormData } from "../schemas";
 
-type DoctorFormFieldNames = keyof doctorFormData;
+type DoctorFormFieldNames = keyof DoctorFormData;
 
 const TimeSelectField = ({
   label,
@@ -28,7 +28,7 @@ const TimeSelectField = ({
 }: {
   label: string;
   name: DoctorFormFieldNames;
-  control: Control<doctorFormData>;
+  control: Control<DoctorFormData>;
 }) => {
   const timeOptions = [
     {

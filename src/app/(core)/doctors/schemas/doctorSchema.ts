@@ -2,6 +2,7 @@ import z from "zod";
 
 export const doctorSchema = z
   .object({
+    id: z.coerce.string().optional(),
     name: z.coerce.string({ required_error: "É necessário informar o nome!" }),
     avatar: z
       .string()
@@ -50,4 +51,4 @@ export const doctorSchema = z
     },
   );
 
-export type doctorFormData = z.infer<typeof doctorSchema>;
+export type DoctorFormData = z.infer<typeof doctorSchema>;

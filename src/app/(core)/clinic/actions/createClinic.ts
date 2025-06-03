@@ -7,7 +7,7 @@ import prisma from "@/lib/prisma";
 
 import { ClinicFormData } from "../schemas";
 
-export const createClini = async (data: ClinicFormData) => {
+export const createClinic = async (data: ClinicFormData) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

@@ -7,13 +7,19 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import UpsertDoctorForm from "./upsert-doctor-form";
 
 const AddDoctorButton = () => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="default">Adicionar Médico</Button>
       </DialogTrigger>
 
-      <UpsertDoctorForm />
+      <UpsertDoctorForm
+        onSuccess={() => {
+          setIsOpen(false);
+        }}
+      />
     </Dialog>
   );
 };

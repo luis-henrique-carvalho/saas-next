@@ -2,7 +2,7 @@
     IMPORTS
 */
 import { doctorSchema } from "./doctorSchema";
-import { doctorFormData } from "./doctorSchema";
+import { DoctorFormData } from "./doctorSchema";
 
 /*
     EXPORTS
@@ -10,4 +10,4 @@ import { doctorFormData } from "./doctorSchema";
 /********* Schemas *************/
 export { doctorSchema };
 /********* Types *************/
-export type { doctorFormData };
+export type { DoctorFormData };

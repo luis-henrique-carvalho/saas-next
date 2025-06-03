@@ -1,7 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,12 +31,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { doctorFormData, doctorSchema } from "../schemas";
+import { upsertDoctor } from "../actions";
+import { DoctorFormData, doctorSchema } from "../schemas";
 import { medicalSpecialties } from "../types";
 import TimeSelectField from "./time-selector-field";
 
-const UpsertDoctorForm = () => {
-  const form = useForm<doctorFormData>({
+interface UpsertDoctorFormProps {
+  onSuccess?: () => void;
+}
+
+const UpsertDoctorForm = ({ onSuccess }: UpsertDoctorFormProps) => {
+  const form = useForm<DoctorFormData>({
     resolver: zodResolver(doctorSchema),
     defaultValues: {
       name: "",
@@ -47,17 +55,19 @@ const UpsertDoctorForm = () => {
     },
   });
 
-  const onSubmit = async (data: doctorFormData) => {
-    try {
-      // Simulate API call
-      console.log("Submitting doctor data:", data);
-      // Here you would typically call your API to save the doctor data
-      // await api.saveDoctor(data);
-      // Reset form after successful submission
-      form.reset();
-    } catch (error) {
-      console.error("Error submitting doctor data:", error);
-    }
+  const upsertDoctorAction = useAction(upsertDoctor, {
+    onSuccess: () => {
+      toast.success("Médico adicionado com sucesso!");
+      onSuccess?.();
+    },
+    onError: (error) => {
+      console.error("Error creating doctor:", error);
+      toast.error("Erro ao adicionar médico. Tente novamente.");
+    },
+  });
+
+  const onSubmit = async (data: DoctorFormData) => {
+    await upsertDoctorAction.execute(data);
   };
 
   return (
@@ -235,11 +245,15 @@ const UpsertDoctorForm = () => {
           </div>
 
           <DialogFooter>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               {form.formState.isSubmitting ? (
-                <span className="animate-spin">Loading...</span>
+                <Loader2 className="m-2 h-4 w-4 animate-spin" />
               ) : (
-                "Salvar Médico"
+                "Criar Médico"
               )}
             </Button>
           </DialogFooter>
