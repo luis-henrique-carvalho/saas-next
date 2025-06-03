@@ -1,10 +1,10 @@
 /*
     IMPORTS
 */
-import { createClini } from "./createClinic";
+import { createClinic } from "./createClinic";
 
 /*
     EXPORTS
 */
 /********* Actions *************/
-export { createClini };
+export { createClinic };
