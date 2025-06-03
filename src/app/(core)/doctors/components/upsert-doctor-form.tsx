@@ -79,7 +79,7 @@ const UpsertDoctorForm = ({ onSuccess }: UpsertDoctorFormProps) => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex max-h-[60vh] flex-col gap-6 overflow-y-auto pr-2">
+          <div className="flex max-h-[60vh] flex-col gap-6 overflow-y-auto pr-2 pb-4">
             {/* Name */}
             <FormField
               control={form.control}
