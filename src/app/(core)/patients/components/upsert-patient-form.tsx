@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { NumericFormat } from "react-number-format";
+import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -67,10 +67,26 @@ const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
       onSuccess?.();
     },
     onError: (error) => {
+      if (error.error?.validationErrors) {
+        const errors = error.error.validationErrors;
+
+        Object.entries(errors).forEach(([field, fieldErrors]) => {
+          form.setError(field as keyof UpsertPatientFormData, {
+            type: "manual",
+            message: Array.isArray(
+              (fieldErrors as { _errors?: string[] })._errors,
+            )
+              ? (fieldErrors as { _errors: string[] })._errors.join(", ")
+              : "",
+          });
+        });
+
+        return;
+      }
+
       toast.error(
         patient ? "Erro ao atualizar paciente." : "Erro ao adicionar paciente.",
       );
-      console.error(error);
     },
   });
 
@@ -140,12 +156,13 @@ const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
                 <FormItem>
                   <FormLabel>Número de telefone</FormLabel>
                   <FormControl>
-                    <NumericFormat
+                    <PatternFormat
                       value={field.value}
                       customInput={Input}
                       placeholder="(99) 99999-9999"
                       onValueChange={(values) => field.onChange(values.value)}
-                      form="(##) #####-####"
+                      format="(##) #####-####"
+                      mask="_"
                     />
                   </FormControl>
                   <FormMessage />

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { returnValidationErrors } from "next-safe-action";
 
 import prisma from "@/lib/prisma";
 import { actionClient } from "@/lib/safe-action";
@@ -12,12 +13,21 @@ export const upsertPatient = actionClient
   .action(async ({ parsedInput }) => {
     const { id, name, email, phoneNumber, sex } = parsedInput;
 
-    const patient = await prisma.patient.upsert({
-      where: { id: id || "" },
-      update: { name, email, phoneNumber, sex },
-      create: { name, email, phoneNumber, sex },
-    });
+    try {
+      await prisma.patient.upsert({
+        where: { id: id || "" },
+        update: { name, email, phoneNumber, sex },
+        create: { name, email, phoneNumber, sex },
+      });
 
-    revalidatePath("/patients");
-    return patient;
+      revalidatePath("/patients");
+    } catch (error) {
+      if ((error as { code?: string })?.code === "P2002") {
+        returnValidationErrors(upsertPatientSchema, {
+          email: {
+            _errors: ["Email already registered"],
+          },
+        });
+      }
+    }
   });
