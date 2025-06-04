@@ -13,24 +13,21 @@ import { doctorSchema } from "../schemas";
 
 dayjs.extend(utc);
 
+function parseTimeToUtc(time: string) {
+  const [hours, minutes, seconds] = time.split(":").map(Number);
+  return dayjs()
+    .set("hours", hours)
+    .set("minutes", minutes)
+    .set("seconds", seconds)
+    .utc();
+}
+
 export const upsertDoctor = actionClient
   .inputSchema(doctorSchema)
   .action(async ({ parsedInput }) => {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
-
-    const availableFromTimeUtc = dayjs()
-      .set("hours", parseInt(parsedInput.availableFromTime.split(":")[0]))
-      .set("minutes", parseInt(parsedInput.availableFromTime.split(":")[1]))
-      .set("seconds", parseInt(parsedInput.availableFromTime.split(":")[2]))
-      .utc();
-
-    const availableToTimeUtc = dayjs()
-      .set("hours", parseInt(parsedInput.availableToTime.split(":")[0]))
-      .set("minutes", parseInt(parsedInput.availableToTime.split(":")[1]))
-      .set("seconds", parseInt(parsedInput.availableToTime.split(":")[2]))
-      .utc();
 
     if (!session) {
       throw new Error("Unauthorized");
@@ -41,6 +38,9 @@ export const upsertDoctor = actionClient
     if (!clinicId) {
       throw new Error("Clinic ID is required");
     }
+
+    const availableFromTimeUtc = parseTimeToUtc(parsedInput.availableFromTime);
+    const availableToTimeUtc = parseTimeToUtc(parsedInput.availableToTime);
 
     await prisma.doctor.upsert({
       where: { id: parsedInput.id || "" },
@@ -62,8 +62,6 @@ export const upsertDoctor = actionClient
         clinicId: clinicId,
       },
     });
-
-    console.log("Doctor upserted successfully");
 
     revalidatePath("/doctors");
   });

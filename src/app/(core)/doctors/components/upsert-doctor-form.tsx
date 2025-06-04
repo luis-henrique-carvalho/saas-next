@@ -44,12 +44,14 @@ interface UpsertDoctorFormProps {
 }
 
 const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
+  console.log(doctor)
   const form = useForm<DoctorFormData>({
     shouldUnregister: true,
     resolver: zodResolver(doctorSchema),
     defaultValues: {
-      id: doctor?.id || "",
+      id: doctor?.id,
       name: doctor?.name || "",
+      specialty: doctor?.specialty || "",
       appointPriceInCents: doctor?.appointPriceInCents
         ? doctor.appointPriceInCents / 100
         : 0,
@@ -58,7 +60,6 @@ const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
       availableFromWeekday: doctor?.availableFromWeekday || "1",
       availableToWeekday: doctor?.availableToWeekday || "6",
       avatar: "",
-      specialty: doctor?.specialty || "",
     },
   });
 
@@ -79,8 +80,13 @@ const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
     },
   });
 
-  const onSubmit = async (data: DoctorFormData) => {
-    await upsertDoctorAction.execute(data);
+  const onSubmit = async (values: DoctorFormData) => {
+    await upsertDoctorAction.execute(
+      {
+        ...values,
+        id: doctor?.id
+      }
+    );
   };
 
   return (

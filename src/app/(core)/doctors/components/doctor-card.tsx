@@ -62,7 +62,9 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
   const doctorInitials = doctor.name
     .split(" ")
     .map((name) => name[0])
-    .join("");
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   const availability = getAvailability(doctor);
 
