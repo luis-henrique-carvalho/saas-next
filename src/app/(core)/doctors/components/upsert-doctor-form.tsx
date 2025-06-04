@@ -80,12 +80,10 @@ const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
   });
 
   const onSubmit = async (values: DoctorFormData) => {
-    await upsertDoctorAction.execute(
-      {
-        ...values,
-        id: doctor?.id
-      }
-    );
+    await upsertDoctorAction.execute({
+      ...values,
+      id: doctor?.id,
+    });
   };
 
   return (
