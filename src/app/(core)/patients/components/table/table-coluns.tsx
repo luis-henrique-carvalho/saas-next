@@ -1,18 +1,11 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontalIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Patient } from "@/generated/prisma";
 import { formatPhoneNumber } from "@/helpers/utils";
 
-import { Patient } from "../../types";
+import TableActions from "./table-actions";
 
 export const columns: ColumnDef<Patient>[] = [
   {
@@ -47,20 +40,9 @@ export const columns: ColumnDef<Patient>[] = [
     id: "actions",
     header: "Ações",
     accessorKey: "actions",
-    cell: () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontalIcon />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>Editar</DropdownMenuItem>
-            <DropdownMenuItem>Excluir</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+    cell: (params) => {
+      const patient = params.row.original;
+      return <TableActions patient={patient} />;
     },
   },
 ];
