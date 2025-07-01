@@ -44,6 +44,7 @@ model Clinic {
 
   users      User[]
   ClinicUser ClinicUser[]
+  Patient    Patient[]
 
   @@map("clinic")
 }
@@ -86,11 +87,13 @@ model Patient {
   phoneNumber String
   email       String        @unique
   sex         pacienSexEnum
+  clinicId    String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   Appointment Appointment[]
+  clinic      Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   @@map("patient")
 }
