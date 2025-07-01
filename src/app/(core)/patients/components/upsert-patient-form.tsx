@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { upsertPatient } from "../actions/upsert-patient";
+import { upsertPatient } from "../actions";
 import {
   UpsertPatientFormData,
   upsertPatientSchema,
