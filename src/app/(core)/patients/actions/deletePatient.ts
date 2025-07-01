@@ -29,15 +29,16 @@ export const deletePatient = actionClient
       throw new Error("Clinic ID is required");
     }
 
-    // Check if patient exists and belongs to the clinic through appointments
     const patient = await prisma.patient.findUnique({
       where: { id: parsedInput.id },
     });
 
-    console.log(patient);
-
     if (!patient) {
       throw new Error("Patient not found");
+    }
+
+    if (patient.clinicId !== clinicId) {
+      throw new Error("Patient does not belong to the clinic");
     }
 
     await prisma.patient.delete({
