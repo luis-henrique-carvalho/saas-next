@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { returnValidationErrors } from "next-safe-action";
 
+import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { actionClient } from "@/lib/safe-action";
 
@@ -13,11 +15,31 @@ export const upsertPatient = actionClient
   .action(async ({ parsedInput }) => {
     const { id, name, email, phoneNumber, sex } = parsedInput;
 
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    const clinicId = session.user.clinic?.id;
+
+    if (!clinicId) {
+      throw new Error("Clinic ID is required");
+    }
+
     try {
       await prisma.patient.upsert({
         where: { id: id || "" },
         update: { name, email, phoneNumber, sex },
-        create: { name, email, phoneNumber, sex },
+        create: {
+          name,
+          email,
+          phoneNumber,
+          sex,
+          clinicId,
+        },
       });
 
       revalidatePath("/patients");
@@ -29,5 +51,7 @@ export const upsertPatient = actionClient
           },
         });
       }
+
+      throw error;
     }
   });

@@ -18,6 +18,7 @@ export default async function PatientsPage() {
   const dbPatients = await prisma.patient.findMany({
     orderBy: { createdAt: "desc" },
   });
+
   const patients: Patient[] = dbPatients.map((p) => ({
     ...p,
     createdAt: p.createdAt.toISOString(),
@@ -28,7 +29,7 @@ export default async function PatientsPage() {
     <PageContainer>
       <PageHeader>
         <PageHeaderContent>
-          <PageTitle>Médicos</PageTitle>
+          <PageTitle>Pacientes</PageTitle>
           <PageDescription>
             Gerencie os pacientes da sua clínica
           </PageDescription>
@@ -38,7 +39,14 @@ export default async function PatientsPage() {
         </PageActions>
       </PageHeader>
       <PageContent>
-        <DataTable columns={columns} data={patients} />
+        <DataTable
+          columns={columns}
+          data={patients.map((p) => ({
+            ...p,
+            createdAt: new Date(p.createdAt),
+            updatedAt: new Date(p.updatedAt),
+          }))}
+        />
       </PageContent>
     </PageContainer>
   );

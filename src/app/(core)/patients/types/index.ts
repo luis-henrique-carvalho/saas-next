@@ -6,4 +6,5 @@ export type Patient = {
   sex: "MALE" | "FEMALE";
   createdAt: string;
   updatedAt: string;
+  clinicId: string;
 };
