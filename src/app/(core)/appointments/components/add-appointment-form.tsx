@@ -1,16 +1,9 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import dayjs from "dayjs";
 import { CalendarIcon } from "lucide-react";
-import { useAction } from "next-safe-action/hooks";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -45,119 +38,26 @@ import {
 import { Doctor, Patient } from "@/generated/prisma";
 import { cn } from "@/lib/utils";
 
-import { getAvailableTimes } from "../../doctors/actions/get-available-times";
-import { createAppointment } from "../actions";
-import { AppointmentFormData, appointmentSchema } from "../schemas";
+import { useAddAppointmentForm } from "../hooks/use-add-appointment-form";
 
 interface AddAppointmentFormProps {
   patients: Patient[];
-  isOpen: boolean;
-
   doctors: Doctor[];
   onSuccess?: () => void;
 }
 
-const AddAppointmentForm = ({
-  patients,
-  doctors,
-  isOpen,
-  onSuccess,
-}: AddAppointmentFormProps) => {
-  const form = useForm<AppointmentFormData>({
-    resolver: zodResolver(appointmentSchema),
-    defaultValues: {
-      patientId: "",
-      doctorId: "",
-      priceInCents: 0,
-      date: undefined,
-      time: "",
-    },
-  });
-
-  const selectedDoctorId = form.watch("doctorId");
-  const selectedPatientId = form.watch("patientId");
-  const selectedDate = form.watch("date");
-
-  const { data: availableTimes } = useQuery({
-    queryKey: ["available-times", selectedDoctorId, selectedPatientId],
-    queryFn: () =>
-      getAvailableTimes({
-        id: selectedDoctorId,
-        data: dayjs(selectedDate).format("YYYY-MM-DD"),
-      }),
-    enabled: !!selectedDate && !!selectedDoctorId,
-  });
-
-  console.log("Available Times:", availableTimes);
-
-  useEffect(() => {
-    if (isOpen) {
-      form.reset({
-        patientId: "",
-        doctorId: "",
-        priceInCents: 0,
-        date: undefined,
-        time: "",
-      });
-    }
-  }, [isOpen, form]);
-
-  const createAppointmentAction = useAction(createAppointment, {
-    onSuccess: () => {
-      toast.success("Agendamento criado com sucesso!");
-      onSuccess?.();
-    },
-    onError: (error: unknown) => {
-      console.log("cheguei aqui");
-      console.log("error", error);
-      toast.error(
-        typeof error === "string"
-          ? error
-          : error instanceof Error && error.message
-            ? error.message
-            : "Erro ao criar agendamento.",
-      );
-      console.error(error);
-    },
-  });
-
-  const onSubmit = async (values: AppointmentFormData) => {
-    await createAppointmentAction.execute({
-      ...values,
-      priceInCents: values.priceInCents * 100,
-    });
-  };
-
-  useEffect(() => {
-    if (selectedDoctorId) {
-      const selectedDoctor = doctors.find(
-        (doctor) => doctor.id === selectedDoctorId,
-      );
-
-      if (selectedDoctor) {
-        form.setValue("priceInCents", selectedDoctor.appointPriceInCents / 100);
-      }
-    }
-  }, [selectedDoctorId, doctors, form]);
-
-  const isDateAvailable = (date: Date) => {
-    if (!selectedDoctorId) return false;
-
-    const selectedDoctor = doctors.find(
-      (doctor) => doctor.id === selectedDoctorId,
-    );
-
-    if (!selectedDoctor) return false;
-
-    const dayOfWeek = date.getDay();
-
-    return (
-      dayOfWeek >= selectedDoctor?.availableFromWeekday &&
-      dayOfWeek <= selectedDoctor?.availableToWeekday
-    );
-  };
-
-  const isDateTimeEnabled = selectedPatientId && selectedDoctorId;
+const AddAppointmentForm = (props: AddAppointmentFormProps) => {
+  const {
+    form,
+    availableTimes,
+    createAppointmentAction,
+    onSubmit,
+    isDateAvailable,
+    isDateTimeEnabled,
+    selectedDate,
+    patients,
+    doctors,
+  } = useAddAppointmentForm(props);
 
   return (
     <DialogContent>

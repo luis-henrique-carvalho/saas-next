@@ -31,7 +31,6 @@ const AddAppointmentButton = ({
       <AddAppointmentForm
         patients={patients}
         doctors={doctors}
-        isOpen={isOpen}
         onSuccess={() => setIsOpen(false)}
       />
     </Dialog>
