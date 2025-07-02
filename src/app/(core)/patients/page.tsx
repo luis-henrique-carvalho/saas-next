@@ -11,7 +11,7 @@ import { DataTable } from "@/components/ui/data-table";
 import prisma from "@/lib/prisma";
 
 import AddPatientButton from "./components/add-patient-button";
-import { columns } from "./components/table/table-coluns";
+import { columns } from "./components/table/table-columns";
 import { Patient } from "./types";
 
 export default async function PatientsPage() {
