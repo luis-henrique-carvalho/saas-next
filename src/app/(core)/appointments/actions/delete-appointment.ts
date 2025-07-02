@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { actionClient } from "@/lib/safe-action";
 
-export const deleteDoctor = actionClient
+export const deleteAppointment = actionClient
   .inputSchema(
     z.object({
       id: z.string().uuid(),
@@ -29,24 +29,24 @@ export const deleteDoctor = actionClient
       throw new Error("Clinic ID is required");
     }
 
-    const doctor = await prisma.doctor.findUnique({
+    const appointment = await prisma.appointment.findUnique({
       where: { id: parsedInput.id },
       select: { clinicId: true },
     });
 
-    if (!doctor) {
-      throw new Error("Doctor not found");
+    if (!appointment) {
+      throw new Error("Appointment not found");
     }
 
-    if (doctor?.clinicId !== clinicId) {
-      throw new Error("Doctor does not belong to the clinic");
+    if (appointment.clinicId !== clinicId) {
+      throw new Error("Appointment does not belong to the clinic");
     }
 
-    await prisma.doctor.delete({
+    await prisma.appointment.delete({
       where: { id: parsedInput.id },
     });
 
-    revalidatePath("/doctors");
+    revalidatePath("/appointments");
 
     return { success: true };
   });
