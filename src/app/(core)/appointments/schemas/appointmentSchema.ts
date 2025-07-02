@@ -13,6 +13,9 @@ export const appointmentSchema = z.object({
   date: z.date({
     message: "Data é obrigatória.",
   }),
+  time: z.string().min(1, {
+    message: "Horário é obrigatório.",
+  }),
 });
 
 export type AppointmentFormData = z.infer<typeof appointmentSchema>;

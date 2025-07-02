@@ -1,8 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import dayjs from "dayjs";
 import { CalendarIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useEffect } from "react";
@@ -43,11 +45,14 @@ import {
 import { Doctor, Patient } from "@/generated/prisma";
 import { cn } from "@/lib/utils";
 
+import { getAvailableTimes } from "../../doctors/actions/get-available-times";
 import { createAppointment } from "../actions";
 import { AppointmentFormData, appointmentSchema } from "../schemas";
 
 interface AddAppointmentFormProps {
   patients: Patient[];
+  isOpen: boolean;
+
   doctors: Doctor[];
   onSuccess?: () => void;
 }
@@ -55,6 +60,7 @@ interface AddAppointmentFormProps {
 const AddAppointmentForm = ({
   patients,
   doctors,
+  isOpen,
   onSuccess,
 }: AddAppointmentFormProps) => {
   const form = useForm<AppointmentFormData>({
@@ -64,18 +70,52 @@ const AddAppointmentForm = ({
       doctorId: "",
       priceInCents: 0,
       date: undefined,
+      time: ""
     },
   });
 
-  // TODO: implementar action de criação de agendamento
+  const selectedDoctorId = form.watch("doctorId");
+  const selectedPatientId = form.watch("patientId");
+  const selectedDate = form.watch("date");
+
+  const { data: availableTimes } = useQuery({
+    queryKey: ["available-times", selectedDoctorId, selectedPatientId],
+    queryFn: () => getAvailableTimes({
+      id: selectedDoctorId,
+      data: dayjs(selectedDate).format("YYYY-MM-DD"),
+    }),
+    enabled: !!selectedDate && !!selectedDoctorId,
+  })
+
+  console.log("Available Times:", availableTimes);
+
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        patientId: "",
+        doctorId: "",
+        priceInCents: 0,
+        date: undefined,
+        time: ""
+      });
+    }
+  }, [isOpen, form]);
+
   const createAppointmentAction = useAction(createAppointment, {
     onSuccess: () => {
       toast.success("Agendamento criado com sucesso!");
       onSuccess?.();
     },
     onError: (error: unknown) => {
+      console.log("cheguei aqui")
+      console.log("error", error);
       toast.error(
-        error instanceof Error ? error.message : "Erro ao criar agendamento.",
+        typeof error === "string"
+          ? error
+          : error instanceof Error && error.message
+            ? error.message
+            : "Erro ao criar agendamento."
       );
       console.error(error);
     },
@@ -83,16 +123,11 @@ const AddAppointmentForm = ({
 
   const onSubmit = async (values: AppointmentFormData) => {
     await createAppointmentAction.execute({
-      patientId: values.patientId,
-      doctorId: values.doctorId,
+      ...values,
       priceInCents: values.priceInCents * 100,
-      date: values.date,
     });
   };
 
-  const selectedDoctorId = form.watch("doctorId");
-  const selectedPatientId = form.watch("patientId");
-  // const selectedDate = form.watch("date");
 
   useEffect(() => {
     if (selectedDoctorId) {
@@ -255,6 +290,39 @@ const AddAppointmentForm = ({
                       />
                     </PopoverContent>
                   </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Horário</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={!isDateTimeEnabled || !selectedDate}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione um horário" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableTimes?.data?.map((time) => (
+                        <SelectItem
+                          key={time.value}
+                          value={time.value}
+                          disabled={!time.available}
+                        >
+                          {time.label} {!time.available && "(Indisponível)"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
