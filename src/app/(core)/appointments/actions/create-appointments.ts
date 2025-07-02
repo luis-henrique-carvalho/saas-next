@@ -33,8 +33,6 @@ export const createAppointment = actionClient
       data: dayjs(parsedInput.date).format("YYYY-MM-DD"),
     });
 
-    console.log("Available times:", availableTimes);
-
     if (!availableTimes?.data) {
       throw new Error("No available times");
     }
@@ -48,8 +46,8 @@ export const createAppointment = actionClient
     }
 
     await getAvailableTimes({
-      data: parsedInput.doctorId,
-      id: dayjs(parsedInput.date).format("YYYY-MM-DD"),
+      id: parsedInput.doctorId,
+      data: dayjs(parsedInput.date).format("YYYY-MM-DD"),
     });
 
     const appointmentDateTime = dayjs(parsedInput.date)

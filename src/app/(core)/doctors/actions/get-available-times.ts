@@ -39,8 +39,6 @@ export const getAvailableTimes = actionClient
       where: { id: parsedInput.id },
     });
 
-    console.log(doctor);
-
     if (!doctor) {
       throw new Error("Doctor not found");
     }
@@ -51,19 +49,12 @@ export const getAvailableTimes = actionClient
       selectedDayOfWeek >= doctor.availableFromWeekday &&
       selectedDayOfWeek <= doctor.availableToWeekday;
 
-    console.log("Doctor is available:", doctorIsAvailable);
-
     if (!doctorIsAvailable) {
       return [];
     }
 
-    console.log("parsedInput.data", parsedInput.data);
-
     const startDate = dayjs(parsedInput.data).startOf("day").toDate();
     const endDate = dayjs(parsedInput.data).endOf("day").toDate();
-
-    console.log("startDate", startDate);
-    console.log("endDate", endDate);
 
     const appointments = await prisma.appointment.findMany({
       where: {
@@ -74,8 +65,6 @@ export const getAvailableTimes = actionClient
         },
       },
     });
-
-    console.log("Appointments:", appointments);
 
     const appointmentsDates = appointments.map((appointment) =>
       dayjs(appointment.date).format("HH:mm:ss"),
