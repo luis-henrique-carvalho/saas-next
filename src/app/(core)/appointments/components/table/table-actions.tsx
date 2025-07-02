@@ -24,12 +24,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { Appointment } from "@/generated/prisma";
 
 import { deleteAppointment } from "../../actions/delete-appointment";
-import { Appointment } from "../../types";
 
 interface Props {
-  appointment: Appointment;
+  appointment: Appointment & {
+    patient: {
+      name: string;
+    };
+    doctor: {
+      name: string;
+    };
+  };
 }
 
 const TableActions = ({ appointment }: Props) => {
