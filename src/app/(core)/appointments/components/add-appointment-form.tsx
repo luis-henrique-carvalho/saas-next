@@ -70,7 +70,7 @@ const AddAppointmentForm = ({
       doctorId: "",
       priceInCents: 0,
       date: undefined,
-      time: ""
+      time: "",
     },
   });
 
@@ -80,15 +80,15 @@ const AddAppointmentForm = ({
 
   const { data: availableTimes } = useQuery({
     queryKey: ["available-times", selectedDoctorId, selectedPatientId],
-    queryFn: () => getAvailableTimes({
-      id: selectedDoctorId,
-      data: dayjs(selectedDate).format("YYYY-MM-DD"),
-    }),
+    queryFn: () =>
+      getAvailableTimes({
+        id: selectedDoctorId,
+        data: dayjs(selectedDate).format("YYYY-MM-DD"),
+      }),
     enabled: !!selectedDate && !!selectedDoctorId,
-  })
+  });
 
   console.log("Available Times:", availableTimes);
-
 
   useEffect(() => {
     if (isOpen) {
@@ -97,7 +97,7 @@ const AddAppointmentForm = ({
         doctorId: "",
         priceInCents: 0,
         date: undefined,
-        time: ""
+        time: "",
       });
     }
   }, [isOpen, form]);
@@ -108,14 +108,14 @@ const AddAppointmentForm = ({
       onSuccess?.();
     },
     onError: (error: unknown) => {
-      console.log("cheguei aqui")
+      console.log("cheguei aqui");
       console.log("error", error);
       toast.error(
         typeof error === "string"
           ? error
           : error instanceof Error && error.message
             ? error.message
-            : "Erro ao criar agendamento."
+            : "Erro ao criar agendamento.",
       );
       console.error(error);
     },
@@ -127,7 +127,6 @@ const AddAppointmentForm = ({
       priceInCents: values.priceInCents * 100,
     });
   };
-
 
   useEffect(() => {
     if (selectedDoctorId) {
