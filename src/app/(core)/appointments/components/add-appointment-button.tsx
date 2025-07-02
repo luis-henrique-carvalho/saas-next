@@ -10,31 +10,31 @@ import { Doctor, Patient } from "@/generated/prisma";
 import AddAppointmentForm from "./add-appointment-form";
 
 interface AddAppointmentButtonProps {
-    patients: Patient[];
-    doctors: Doctor[];
+  patients: Patient[];
+  doctors: Doctor[];
 }
 
 const AddAppointmentButton = ({
-    patients,
-    doctors,
+  patients,
+  doctors,
 }: AddAppointmentButtonProps) => {
-    const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-    return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <Plus />
-                    Novo agendamento
-                </Button>
-            </DialogTrigger>
-            <AddAppointmentForm
-                patients={patients}
-                doctors={doctors}
-                onSuccess={() => setIsOpen(false)}
-            />
-        </Dialog>
-    );
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus />
+          Novo agendamento
+        </Button>
+      </DialogTrigger>
+      <AddAppointmentForm
+        patients={patients}
+        doctors={doctors}
+        onSuccess={() => setIsOpen(false)}
+      />
+    </Dialog>
+  );
 };
 
 export default AddAppointmentButton;
