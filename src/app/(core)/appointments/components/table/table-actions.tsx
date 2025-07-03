@@ -1,4 +1,4 @@
-import { EditIcon, MoreHorizontalIcon, Trash2 } from "lucide-react";
+import { MoreHorizontalIcon, Trash2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import React from "react";
 import { toast } from "sonner";
@@ -23,7 +23,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import { Appointment } from "@/generated/prisma";
 
 import { deleteAppointment } from "../../actions/delete-appointment";
@@ -68,11 +67,6 @@ const TableActions = ({ appointment }: Props) => {
           <DropdownMenuLabel>
             Agendamento - {appointment.patient.name}
           </DropdownMenuLabel>
-          <Separator className="my-1" />
-          <DropdownMenuItem onClick={() => setEditDialogIsOpen(true)}>
-            <EditIcon className="mr-2" />
-            Editar
-          </DropdownMenuItem>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -99,9 +93,6 @@ const TableActions = ({ appointment }: Props) => {
             </AlertDialogContent>
           </AlertDialog>
         </DropdownMenuContent>
-
-        {/* TODO: Add EditAppointmentForm component when created */}
-        {/* <EditAppointmentForm onSuccess={handleEditAppointmentClick} appointment={appointment} /> */}
       </DropdownMenu>
     </Dialog>
   );

@@ -1,9 +1,19 @@
 import { headers } from "next/headers";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import React from "react";
 
+import {
+  PageActions,
+  PageContainer,
+  PageContent,
+  PageDescription,
+  PageHeader,
+  PageHeaderContent,
+  PageTitle,
+} from "@/components/layout/page-container";
 import { auth } from "@/lib/auth";
+
+import { DatePicker } from "./components/date-picker";
 
 const Dashboard = async () => {
   const session = await auth.api.getSession({
@@ -19,24 +29,20 @@ const Dashboard = async () => {
   }
 
   return (
-    <div>
-      Dashboard
-      <h2>{session?.user.name}</h2>
-      <h2>{session?.user.email}</h2>
-      {session?.user.image && (
-        <Image
-          src={session.user.image}
-          alt="User Avatar"
-          width={100}
-          height={100}
-          className="rounded-full"
-        />
-      )}
-      <h3>Clinics:</h3>
-      <ul>
-        <li key={session.user.clinic.id}>{session.user.clinic.name}</li>
-      </ul>
-    </div>
+    <PageContainer>
+      <PageHeader>
+        <PageHeaderContent>
+          <PageTitle>Dashboard</PageTitle>
+          <PageDescription>Gerencie os médicos da sua clínica</PageDescription>
+        </PageHeaderContent>
+        <PageActions>
+          <DatePicker />
+        </PageActions>
+      </PageHeader>
+      <PageContent>
+        Dashboard
+      </PageContent>
+    </PageContainer>
   );
 };
 
