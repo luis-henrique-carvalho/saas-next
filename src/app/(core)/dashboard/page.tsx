@@ -164,9 +164,6 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     `,
   ]);
 
-  console.log("Top Doctors Raw Data:", topDoctorsRaw);
-  console.log("Top Specialties Raw Data:", topSpecialtiesRaw);
-
   const dailyAppointmentsData = dailyAppointmentsDataRaw.map((item) => ({
     date: dayjs(item.date).format("YYYY-MM-DD"),
     appointments: Number(item.appointments),
