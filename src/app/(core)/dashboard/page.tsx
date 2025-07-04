@@ -1,4 +1,3 @@
-
 import dayjs from "dayjs";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -40,7 +39,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     redirect("/clinic/create");
   }
 
-  const { from, to } = await searchParams
+  const { from, to } = await searchParams;
 
   if (!from || !to) {
     redirect(
@@ -48,8 +47,8 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     );
   }
 
-  const fromDate = new Date(from)
-  const toDate = new Date(to)
+  const fromDate = new Date(from);
+  const toDate = new Date(to);
 
   const chartStarDate = dayjs().subtract(10, "day").startOf("day").toDate();
   const chartEndDate = dayjs().add(10, "day").endOf("day").toDate();
@@ -60,7 +59,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     totalPatientsResult,
     totalDoctorsResult,
     dailyAppointmentsDataRaw,
-    topDoctorsRaw
+    topDoctorsRaw,
   ] = await Promise.all([
     prisma.appointment.aggregate({
       _sum: { priceInCents: true },
@@ -99,8 +98,8 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
         date: Date;
         appointments: number;
         revenue: number;
-      }[]>
-      `SELECT
+      }[]
+    >`SELECT
         DATE_TRUNC('day', "date") AS "date",
         COUNT(id) as "appointments",
         SUM("priceInCents") as "revenue"
@@ -126,7 +125,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     GROUP BY d.id, d.name
     ORDER BY "appointments" ASC
     LIMIT 5
-  `
+  `,
   ]);
 
   console.log("Top Doctors Raw Data:", topDoctorsRaw);
@@ -137,7 +136,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     revenue: Number(item.revenue),
   }));
 
-  const totalAppointment = totalRevenueResult._sum.priceInCents
+  const totalAppointment = totalRevenueResult._sum.priceInCents;
 
   return (
     <PageContainer>
@@ -159,9 +158,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
         />
 
         <div className="grid grid-cols-[2.25fr_1fr] gap-4">
-          <AppointmentChart
-            dailyAppointmentsData={dailyAppointmentsData}
-          />
+          <AppointmentChart dailyAppointmentsData={dailyAppointmentsData} />
         </div>
       </PageContent>
     </PageContainer>
