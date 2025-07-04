@@ -18,6 +18,7 @@ import prisma from "@/lib/prisma";
 import AppointmentChart from "./components/chart/appointment-chart";
 import { DatePicker } from "./components/date-picker";
 import StatsCards from "./components/status-card";
+import TopDoctors from "./components/top-doctors";
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -99,7 +100,8 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
         appointments: number;
         revenue: number;
       }[]
-    >`SELECT
+    >`
+    SELECT
         DATE_TRUNC('day', "date") AS "date",
         COUNT(id) as "appointments",
         SUM("priceInCents") as "revenue"
@@ -113,19 +115,34 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
       ORDER BY
         "date" ASC`,
     prisma.$queryRaw<
-      { doctorId: string; doctorName: string; appointments: number }[]
+      (
+        {
+          id: string;
+          name: string;
+          avatar: string | null;
+          specialty: string;
+          appointments: number;
+        }
+      )[]
     >`
-    SELECT
-      d.id AS "doctorId",
-      d.name AS "doctorName",
-      COUNT(a.id) AS "appointments"
-    FROM "appointment" a
-    JOIN "doctor" d ON d.id = a."doctorId"
-    WHERE a."clinicId" = ${session.user.clinic.id}
-    GROUP BY d.id, d.name
-    ORDER BY "appointments" ASC
-    LIMIT 5
-  `,
+      SELECT
+        d.id,
+        d.name,
+        d."avatar",
+        d.specialty,
+        COUNT(a.id) AS "appointments"
+      FROM
+        "doctor" d
+      LEFT JOIN
+        "appointment" a ON d.id = a."doctorId" AND a."clinicId" = ${session.user.clinic.id}
+      WHERE
+        d."clinicId" = ${session.user.clinic.id}
+      GROUP BY
+        d.id
+      ORDER BY
+        "appointments" DESC
+      LIMIT 5
+    `,
   ]);
 
   console.log("Top Doctors Raw Data:", topDoctorsRaw);
@@ -157,8 +174,9 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
           totalDoctors={totalDoctorsResult._count}
         />
 
-        <div className="grid grid-cols-[2.25fr_1fr] gap-4">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-[2.25fr_1fr]">
           <AppointmentChart dailyAppointmentsData={dailyAppointmentsData} />
+          <TopDoctors doctors={topDoctorsRaw} />
         </div>
       </PageContent>
     </PageContainer>
