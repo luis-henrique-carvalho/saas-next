@@ -117,15 +117,13 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
       ORDER BY
         "date" ASC`,
     prisma.$queryRaw<
-      (
-        {
-          id: string;
-          name: string;
-          avatar: string | null;
-          specialty: string;
-          appointments: number;
-        }
-      )[]
+      {
+        id: string;
+        name: string;
+        avatar: string | null;
+        specialty: string;
+        appointments: number;
+      }[]
     >`
       SELECT
         d.id,
@@ -191,7 +189,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
           totalDoctors={totalDoctorsResult._count}
         />
 
-        <div className="grid gap-4 grid-cols-1 lg:grid-cols-[2.25fr_1fr]">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2.25fr_1fr]">
           <AppointmentChart dailyAppointmentsData={dailyAppointmentsData} />
           <TopDoctors
             doctors={topDoctorsRaw.map((doctor) => ({
