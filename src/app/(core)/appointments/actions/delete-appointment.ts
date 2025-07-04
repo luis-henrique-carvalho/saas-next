@@ -47,6 +47,5 @@ export const deleteAppointment = actionClient
     });
 
     revalidatePath("/appointments");
-
-    return { success: true };
+    revalidatePath("/dashboard");
   });
