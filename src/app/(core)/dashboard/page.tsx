@@ -19,6 +19,7 @@ import AppointmentChart from "./components/chart/appointment-chart";
 import { DatePicker } from "./components/date-picker";
 import StatsCards from "./components/status-card";
 import TopDoctors from "./components/top-doctors";
+import TopSpecialties from "./components/top-specialties";
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -61,6 +62,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     totalDoctorsResult,
     dailyAppointmentsDataRaw,
     topDoctorsRaw,
+    topSpecialtiesRaw,
   ] = await Promise.all([
     prisma.appointment.aggregate({
       _sum: { priceInCents: true },
@@ -135,10 +137,27 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
         "doctor" d
       LEFT JOIN
         "appointment" a ON d.id = a."doctorId" AND a."clinicId" = ${session.user.clinic.id}
-      WHERE
-        d."clinicId" = ${session.user.clinic.id}
       GROUP BY
         d.id
+      ORDER BY
+        "appointments" DESC
+      LIMIT 5
+    `,
+    prisma.$queryRaw<
+      {
+        specialty: string;
+        appointments: bigint;
+      }[]
+    >`
+      SELECT
+        d.specialty,
+        COUNT(a.id) AS "appointments"
+      FROM
+        "doctor" d
+      LEFT JOIN
+        "appointment" a ON d.id = a."doctorId" AND a."clinicId" = ${session.user.clinic.id}
+      GROUP BY
+        d.specialty
       ORDER BY
         "appointments" DESC
       LIMIT 5
@@ -146,6 +165,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
   ]);
 
   console.log("Top Doctors Raw Data:", topDoctorsRaw);
+  console.log("Top Specialties Raw Data:", topSpecialtiesRaw);
 
   const dailyAppointmentsData = dailyAppointmentsDataRaw.map((item) => ({
     date: dayjs(item.date).format("YYYY-MM-DD"),
@@ -176,7 +196,18 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-[2.25fr_1fr]">
           <AppointmentChart dailyAppointmentsData={dailyAppointmentsData} />
-          <TopDoctors doctors={topDoctorsRaw} />
+          <TopDoctors
+            doctors={topDoctorsRaw.map((doctor) => ({
+              ...doctor,
+              appointments: Number(doctor.appointments),
+            }))}
+          />
+          <TopSpecialties
+            topSpecialties={topSpecialtiesRaw.map((specialty) => ({
+              ...specialty,
+              appointments: Number(specialty.appointments),
+            }))}
+          />
         </div>
       </PageContent>
     </PageContainer>
