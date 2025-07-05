@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+import { Calendar } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -11,10 +13,11 @@ import {
   PageHeaderContent,
   PageTitle,
 } from "@/components/layout/page-container";
-import { Calendar } from "@/components/ui/calendar";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/components/ui/data-table";
 import { auth } from "@/lib/auth";
 
+import { appointmentsTableColumns } from "../appointments/components/table/table-columns";
 import { getDashboardData } from "./actions/get-dashboard-data";
 import AppointmentChart from "./components/chart/appointment-chart";
 import { DatePicker } from "./components/date-picker";
@@ -42,6 +45,14 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     redirect("/clinic/create");
   }
 
+  const { from, to } = await searchParams;
+
+  if (!from || !to) {
+    redirect(
+      `/dashboard?from=${dayjs().format("YYYY-MM-DD")}&to=${dayjs().add(1, "month").format("YYYY-MM-DD")}`,
+    );
+  }
+
   const dashboardDataResult = await getDashboardData(await searchParams);
 
   if (dashboardDataResult.serverError) {
@@ -62,6 +73,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     dailyAppointmentsData,
     topDoctors,
     topSpecialties,
+    todayAppointments,
   } = data;
 
   return (
@@ -71,10 +83,12 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
           <PageTitle>Dashboard</PageTitle>
           <PageDescription>Tenha a visão geral do seu negócio</PageDescription>
         </PageHeaderContent>
+
         <PageActions>
           <DatePicker />
         </PageActions>
       </PageHeader>
+
       <PageContent>
         <StatsCards
           totalRevenue={totalRevenue}
@@ -88,7 +102,7 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
           <TopDoctors doctors={topDoctors} />
         </div>
 
-        <div className="grid grid-cols-[2.25fr_1fr] gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2.25fr_1fr]">
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -98,13 +112,15 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
                 </CardTitle>
               </div>
             </CardHeader>
-            {/* <CardContent>
+
+            <CardContent>
               <DataTable
                 columns={appointmentsTableColumns}
                 data={todayAppointments}
               />
-            </CardContent> */}
+            </CardContent>
           </Card>
+
           <TopSpecialties topSpecialties={topSpecialties} />
         </div>
       </PageContent>

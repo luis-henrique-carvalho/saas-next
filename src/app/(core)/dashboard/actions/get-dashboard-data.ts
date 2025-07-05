@@ -18,6 +18,8 @@ export const getDashboardData = actionClient
   .inputSchema(dashboardDataSchema)
   .action(async ({ parsedInput }) => {
     const session = await getValidSession();
+    const clinicId = session.user.clinic!.id;
+
     const { from, to } = getValidDateRange(parsedInput);
 
     const chartStartDate = dayjs().subtract(10, "day").startOf("day").toDate();
@@ -31,18 +33,16 @@ export const getDashboardData = actionClient
       dailyAppointmentsDataRaw,
       topDoctorsRaw,
       topSpecialtiesRaw,
+      todayAppointments,
     ] = await Promise.all([
-      getTotalRevenue(session.user.clinic!.id, from, to),
-      getTotalAppointments(session.user.clinic!.id, from, to),
-      getTotalPatients(session.user.clinic!.id),
-      getTotalDoctors(session.user.clinic!.id),
-      getDailyAppointmentsData(
-        session.user.clinic!.id,
-        chartStartDate,
-        chartEndDate,
-      ),
-      getTopDoctors(session.user.clinic!.id),
-      getTopSpecialties(session.user.clinic!.id),
+      getTotalRevenue(clinicId, from, to),
+      getTotalAppointments(clinicId, from, to),
+      getTotalPatients(clinicId),
+      getTotalDoctors(clinicId),
+      getDailyAppointmentsData(clinicId, chartStartDate, chartEndDate),
+      getTopDoctors(clinicId),
+      getTopSpecialties(clinicId),
+      getTodayAppointments(clinicId),
     ]);
 
     return {
@@ -60,6 +60,7 @@ export const getDashboardData = actionClient
         specialty: specialty.specialty,
         appointments: Number(specialty.appointments),
       })),
+      todayAppointments,
     };
   });
 
@@ -73,13 +74,7 @@ async function getValidSession() {
 }
 
 function getValidDateRange(searchParams: { from: string; to: string }) {
-  const { from, to } = searchParams;
-  if (!from || !to) {
-    redirect(
-      `/dashboard?from=${dayjs().format("YYYY-MM-DD")}&to=${dayjs().add(1, "month").format("YYYY-MM-DD")}`,
-    );
-  }
-  return { from: new Date(from), to: new Date(to) };
+  return { from: new Date(searchParams.from), to: new Date(searchParams.to) };
 }
 
 async function getTotalRevenue(clinicId: string, from: Date, to: Date) {
@@ -191,4 +186,26 @@ async function getTopSpecialties(clinicId: string) {
       "appointments" DESC
     LIMIT 5
   `;
+}
+
+async function getTodayAppointments(clinicId: string) {
+  const resp = prisma.appointment.findMany({
+    where: {
+      clinicId,
+      date: {
+        gte: dayjs().startOf("day").toDate(),
+        lt: dayjs().endOf("day").toDate(),
+      },
+    },
+    include: {
+      patient: true,
+      doctor: true,
+    },
+    orderBy: {
+      date: "asc",
+    },
+  });
+
+  console.log("Today Appointments:", resp);
+  return resp;
 }
