@@ -189,7 +189,7 @@ async function getTopSpecialties(clinicId: string) {
 }
 
 async function getTodayAppointments(clinicId: string) {
-  const resp = prisma.appointment.findMany({
+  return prisma.appointment.findMany({
     where: {
       clinicId,
       date: {
@@ -205,7 +205,4 @@ async function getTodayAppointments(clinicId: string) {
       date: "asc",
     },
   });
-
-  console.log("Today Appointments:", resp);
-  return resp;
 }
