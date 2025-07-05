@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -12,9 +11,11 @@ import {
   PageHeaderContent,
   PageTitle,
 } from "@/components/layout/page-container";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
 
+import { getDashboardData } from "./actions/get-dashboard-data";
 import AppointmentChart from "./components/chart/appointment-chart";
 import { DatePicker } from "./components/date-picker";
 import StatsCards from "./components/status-card";
@@ -41,134 +42,27 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
     redirect("/clinic/create");
   }
 
-  const { from, to } = await searchParams;
+  const dashboardDataResult = await getDashboardData(await searchParams);
 
-  if (!from || !to) {
-    redirect(
-      `/dashboard?from=${dayjs().format("YYYY-MM-DD")}&to=${dayjs().add(1, "month").format("YYYY-MM-DD")}`,
-    );
+  if (dashboardDataResult.serverError) {
+    throw new Error(dashboardDataResult.serverError);
   }
 
-  const fromDate = new Date(from);
-  const toDate = new Date(to);
+  const data = dashboardDataResult.data;
 
-  const chartStarDate = dayjs().subtract(10, "day").startOf("day").toDate();
-  const chartEndDate = dayjs().add(10, "day").endOf("day").toDate();
+  if (!data) {
+    throw new Error("Erro ao carregar dados do dashboard");
+  }
 
-  const [
-    totalRevenueResult,
-    totalAppointmentsResult,
-    totalPatientsResult,
-    totalDoctorsResult,
-    dailyAppointmentsDataRaw,
-    topDoctorsRaw,
-    topSpecialtiesRaw,
-  ] = await Promise.all([
-    prisma.appointment.aggregate({
-      _sum: { priceInCents: true },
-      where: {
-        clinicId: session.user.clinic.id,
-        date: {
-          gte: fromDate,
-          lte: toDate,
-        },
-      },
-    }),
-    prisma.appointment.aggregate({
-      _count: true,
-      where: {
-        clinicId: session.user.clinic.id,
-        date: {
-          gte: fromDate,
-          lte: toDate,
-        },
-      },
-    }),
-    prisma.patient.aggregate({
-      _count: true,
-      where: {
-        clinicId: session.user.clinic.id,
-      },
-    }),
-    prisma.doctor.aggregate({
-      _count: true,
-      where: {
-        clinicId: session.user.clinic.id,
-      },
-    }),
-    prisma.$queryRaw<
-      {
-        date: Date;
-        appointments: number;
-        revenue: number;
-      }[]
-    >`
-    SELECT
-        DATE_TRUNC('day', "date") AS "date",
-        COUNT(id) as "appointments",
-        SUM("priceInCents") as "revenue"
-      FROM "appointment"
-      WHERE
-        "clinicId" = ${session.user.clinic.id}
-        AND "date" >= ${chartStarDate}
-        AND "date" <= ${chartEndDate}
-      GROUP BY
-        DATE_TRUNC('day', "date")
-      ORDER BY
-        "date" ASC`,
-    prisma.$queryRaw<
-      {
-        id: string;
-        name: string;
-        avatar: string | null;
-        specialty: string;
-        appointments: number;
-      }[]
-    >`
-      SELECT
-        d.id,
-        d.name,
-        d."avatar",
-        d.specialty,
-        COUNT(a.id) AS "appointments"
-      FROM
-        "doctor" d
-      LEFT JOIN
-        "appointment" a ON d.id = a."doctorId" AND a."clinicId" = ${session.user.clinic.id}
-      GROUP BY
-        d.id
-      ORDER BY
-        "appointments" DESC
-      LIMIT 5
-    `,
-    prisma.$queryRaw<
-      {
-        specialty: string;
-        appointments: bigint;
-      }[]
-    >`
-      SELECT
-        d.specialty,
-        COUNT(a.id) AS "appointments"
-      FROM
-        "doctor" d
-      LEFT JOIN
-        "appointment" a ON d.id = a."doctorId" AND a."clinicId" = ${session.user.clinic.id}
-      GROUP BY
-        d.specialty
-      ORDER BY
-        "appointments" DESC
-      LIMIT 5
-    `,
-  ]);
-
-  const dailyAppointmentsData = dailyAppointmentsDataRaw.map((item) => ({
-    date: dayjs(item.date).format("YYYY-MM-DD"),
-    appointments: Number(item.appointments),
-    revenue: Number(item.revenue),
-  }));
-
-  const totalAppointment = totalRevenueResult._sum.priceInCents;
+  const {
+    totalRevenue,
+    totalAppointments,
+    totalPatients,
+    totalDoctors,
+    dailyAppointmentsData,
+    topDoctors,
+    topSpecialties,
+  } = data;
 
   return (
     <PageContainer>
@@ -183,26 +77,35 @@ const Dashboard = async ({ searchParams }: DashboardPageProps) => {
       </PageHeader>
       <PageContent>
         <StatsCards
-          totalRevenue={totalAppointment ? Number(totalAppointment) : null}
-          totalAppointments={totalAppointmentsResult._count}
-          totalPatients={totalPatientsResult._count}
-          totalDoctors={totalDoctorsResult._count}
+          totalRevenue={totalRevenue}
+          totalAppointments={totalAppointments}
+          totalPatients={totalPatients}
+          totalDoctors={totalDoctors}
         />
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2.25fr_1fr]">
           <AppointmentChart dailyAppointmentsData={dailyAppointmentsData} />
-          <TopDoctors
-            doctors={topDoctorsRaw.map((doctor) => ({
-              ...doctor,
-              appointments: Number(doctor.appointments),
-            }))}
-          />
-          <TopSpecialties
-            topSpecialties={topSpecialtiesRaw.map((specialty) => ({
-              ...specialty,
-              appointments: Number(specialty.appointments),
-            }))}
-          />
+          <TopDoctors doctors={topDoctors} />
+        </div>
+
+        <div className="grid grid-cols-[2.25fr_1fr] gap-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Calendar className="text-muted-foreground" />
+                <CardTitle className="text-base">
+                  Agendamentos de hoje
+                </CardTitle>
+              </div>
+            </CardHeader>
+            {/* <CardContent>
+              <DataTable
+                columns={appointmentsTableColumns}
+                data={todayAppointments}
+              />
+            </CardContent> */}
+          </Card>
+          <TopSpecialties topSpecialties={topSpecialties} />
         </div>
       </PageContent>
     </PageContainer>
