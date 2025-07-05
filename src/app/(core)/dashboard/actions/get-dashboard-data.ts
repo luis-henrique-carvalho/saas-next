@@ -55,13 +55,7 @@ export const getDashboardData = actionClient
         appointments: Number(item.appointments),
         revenue: Number(item.revenue),
       })),
-      topDoctors: topDoctorsRaw.map((doctor) => ({
-        id: doctor.id,
-        name: doctor.name,
-        avatar: doctor.avatar,
-        specialty: doctor.specialty,
-        appointments: doctor.appointments,
-      })),
+      topDoctors: topDoctorsRaw,
       topSpecialties: topSpecialtiesRaw.map((specialty) => ({
         specialty: specialty.specialty,
         appointments: Number(specialty.appointments),
