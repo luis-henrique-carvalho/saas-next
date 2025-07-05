@@ -68,7 +68,9 @@ export const createAppointment = actionClient
       });
 
       revalidatePath("/appointments");
+      revalidatePath("/dashboard");
     } catch (error) {
-      throw error;
+      console.error("Error creating appointment:", error);
+      throw new Error("Failed to create appointment");
     }
   });

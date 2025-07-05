@@ -15,7 +15,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 import AddAppointmentButton from "./components/add-appointment-button";
-import { columns } from "./components/table/table-columns";
+import { appointmentsTableColumns } from "./components/table/table-columns";
 
 const AppointmentsPage = async () => {
   const session = await auth.api.getSession({
@@ -63,7 +63,7 @@ const AppointmentsPage = async () => {
         </PageActions>
       </PageHeader>
       <PageContent>
-        <DataTable data={appointments} columns={columns} />
+        <DataTable data={appointments} columns={appointmentsTableColumns} />
       </PageContent>
     </PageContainer>
   );
