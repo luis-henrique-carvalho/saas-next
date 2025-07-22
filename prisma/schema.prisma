@@ -29,6 +29,10 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  plan                 String?
+
   @@map("user")
 }
 
