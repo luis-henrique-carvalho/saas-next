@@ -12,15 +12,22 @@ import {
 import { auth } from "@/lib/auth";
 
 import { SubscriptionPlan } from "./components/subscription-plan";
+
 const SubscriptionPage = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
   if (!session) {
     redirect("/login");
   }
+
   if (!session.user.clinic) {
     redirect("/clinic-form");
+  }
+
+  if (!session.user.plan) {
+    redirect("/new-subscription");
   }
 
   return (
