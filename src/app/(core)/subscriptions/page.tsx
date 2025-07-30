@@ -22,6 +22,7 @@ const SubscriptionPage = async () => {
   if (!session.user.clinic) {
     redirect("/clinic-form");
   }
+
   return (
     <PageContainer>
       <PageHeader>
@@ -33,7 +34,7 @@ const SubscriptionPage = async () => {
       <PageContent>
         <SubscriptionPlan
           className="w-[350px]"
-          active={false}
+          active={session.user.plan === "essential"}
           userEmail={session.user.email}
         />
       </PageContent>
