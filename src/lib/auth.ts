@@ -22,6 +22,7 @@ export const auth = betterAuth({
         },
         include: {
           clinic: true,
+          user: true,
         },
       });
 
@@ -29,6 +30,7 @@ export const auth = betterAuth({
         ...session,
         user: {
           ...user,
+          plan: userClinic?.user.plan,
           clinic: userClinic?.clinic || null,
         },
       };
