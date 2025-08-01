@@ -15,7 +15,7 @@ import AddAppointmentButton from "./components/add-appointment-button";
 import { appointmentsTableColumns } from "./components/table/table-columns";
 
 const AppointmentsPage = async () => {
-  const session = await requireFullAuth()
+  const session = await requireFullAuth();
 
   const clinicId = session.user.clinic?.id;
 

@@ -12,7 +12,7 @@ import { getValidSession } from "@/lib/auth-utils";
 import ClinicForm from "../../components/clinic-form";
 
 const ClinicCreate = async () => {
-  const session = await getValidSession()
+  const session = await getValidSession();
 
   if (session.user.clinic) {
     redirect("/dashboard");

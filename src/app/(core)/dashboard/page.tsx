@@ -32,7 +32,7 @@ interface DashboardPageProps {
 }
 
 const Dashboard = async ({ searchParams }: DashboardPageProps) => {
-  await requireFullAuth()
+  await requireFullAuth();
 
   const { from, to } = await searchParams;
 

@@ -16,7 +16,7 @@ import AddDoctorButton from "./components/add-doctor-button";
 import DoctorCard from "./components/doctor-card";
 
 const DoctorsPage = async () => {
-  const session = await requireFullAuth()
+  const session = await requireFullAuth();
 
   const doctors = await prisma.doctor.findMany({
     where: {
