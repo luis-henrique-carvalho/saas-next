@@ -16,10 +16,12 @@ import { columns } from "./components/table/table-columns";
 import { Patient } from "./types";
 
 export default async function PatientsPage() {
-  await requireFullAuth();
+  const session = await requireFullAuth();
 
   const dbPatients = await prisma.patient.findMany({
-    orderBy: { createdAt: "desc" },
+    where: {
+      clinicId: session.user.clinic?.id,
+    }
   });
 
   const patients: Patient[] = dbPatients.map((p) => ({
