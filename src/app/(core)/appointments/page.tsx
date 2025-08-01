@@ -1,6 +1,3 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-
 import {
   PageActions,
   PageContainer,
@@ -11,36 +8,32 @@ import {
   PageTitle,
 } from "@/components/layout/page-container";
 import { DataTable } from "@/components/ui/data-table";
-import { auth } from "@/lib/auth";
+import { requireFullAuth } from "@/lib/auth-utils";
 import prisma from "@/lib/prisma";
 
 import AddAppointmentButton from "./components/add-appointment-button";
 import { appointmentsTableColumns } from "./components/table/table-columns";
 
 const AppointmentsPage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user) {
-    redirect("/authentication");
+  const session = await requireFullAuth()
+
+  const clinicId = session.user.clinic?.id;
+
+  if (!clinicId) {
+    throw new Error("Usuário não está associado a uma clínica.");
   }
-  if (!session.user.clinic) {
-    redirect("/clinic-form");
-  }
-  // if (!session.user.plan) {
-  //     redirect("/new-subscription");
-  // }
+
   const [patients, doctors, appointments] = await Promise.all([
     prisma.patient.findMany({
-      where: { clinicId: session.user.clinic.id },
+      where: { clinicId },
       orderBy: { createdAt: "desc" },
     }),
     prisma.doctor.findMany({
-      where: { clinicId: session.user.clinic.id },
+      where: { clinicId },
       orderBy: { createdAt: "desc" },
     }),
     prisma.appointment.findMany({
-      where: { clinicId: session.user.clinic.id },
+      where: { clinicId: session.user.clinic?.id },
       orderBy: { date: "desc" },
       include: {
         patient: true,

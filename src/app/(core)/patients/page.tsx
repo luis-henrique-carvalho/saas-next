@@ -8,6 +8,7 @@ import {
   PageTitle,
 } from "@/components/layout/page-container";
 import { DataTable } from "@/components/ui/data-table";
+import { requireFullAuth } from "@/lib/auth-utils";
 import prisma from "@/lib/prisma";
 
 import AddPatientButton from "./components/add-patient-button";
@@ -15,6 +16,8 @@ import { columns } from "./components/table/table-columns";
 import { Patient } from "./types";
 
 export default async function PatientsPage() {
+  await requireFullAuth()
+
   const dbPatients = await prisma.patient.findMany({
     orderBy: { createdAt: "desc" },
   });
