@@ -16,20 +16,29 @@ export const auth = betterAuth({
   }),
   plugins: [
     customSession(async ({ user, session }) => {
-      const userClinic = await prisma.clinicUser.findFirst({
-        where: {
-          userId: user.id,
-        },
-        include: {
-          clinic: true,
-        },
-      });
+      const [userData, clinicData] = await Promise.all([
+        prisma.user.findUnique({
+          where: {
+            id: user.id,
+          },
+        }),
+        prisma.clinicUser.findFirst({
+          where: {
+            userId: user.id,
+          },
+          include: {
+            clinic: true,
+            user: true,
+          },
+        }),
+      ]);
 
       return {
         ...session,
         user: {
           ...user,
-          clinic: userClinic?.clinic || null,
+          plan: userData?.plan,
+          clinic: clinicData?.clinic || undefined,
         },
       };
     }),

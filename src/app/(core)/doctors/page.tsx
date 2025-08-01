@@ -1,5 +1,3 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import React from "react";
 
 import {
@@ -11,28 +9,18 @@ import {
   PageHeaderContent,
   PageTitle,
 } from "@/components/layout/page-container";
-import { auth } from "@/lib/auth";
+import { requireFullAuth } from "@/lib/auth-utils";
 import prisma from "@/lib/prisma";
 
 import AddDoctorButton from "./components/add-doctor-button";
 import DoctorCard from "./components/doctor-card";
 
 const DoctorsPage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  if (session.user.clinic === null) {
-    redirect("/clinic/create");
-  }
+  const session = await requireFullAuth();
 
   const doctors = await prisma.doctor.findMany({
     where: {
-      clinicId: session.user.clinic.id,
+      clinicId: session.user.clinic?.id,
     },
   });
 

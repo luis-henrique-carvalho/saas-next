@@ -10,8 +10,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -28,6 +29,10 @@ model User {
   image         String?
   sessions      Session[]
   accounts      Account[]
+
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  plan                 String?
 
   @@map("user")
 }

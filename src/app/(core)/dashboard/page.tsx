@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
 import { Calendar } from "lucide-react";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -15,7 +14,7 @@ import {
 } from "@/components/layout/page-container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { auth } from "@/lib/auth";
+import { requireFullAuth } from "@/lib/auth-utils";
 
 import { appointmentsTableColumns } from "../appointments/components/table/table-columns";
 import { getDashboardData } from "./actions/get-dashboard-data";
@@ -33,17 +32,7 @@ interface DashboardPageProps {
 }
 
 const Dashboard = async ({ searchParams }: DashboardPageProps) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  if (!session.user.clinic) {
-    redirect("/clinic/create");
-  }
+  await requireFullAuth();
 
   const { from, to } = await searchParams;
 
